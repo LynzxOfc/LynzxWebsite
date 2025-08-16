@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lynzx Website</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-color: #1a1a1a;
+            --container-bg: #2c2c2c;
+            --input-bg: #1a1a1a;
+            --text-color: white;
+            --button-bg: #555;
+            --button-hover: #777;
+            --placeholder-color: #aaa;
+            --link-color: #ccc;
+            --kode-bg: #444;
+            --error-bg: rgba(128, 128, 128, 0.7);
+            --success-bg: rgba(0, 0, 0, 0.7);
+            --overlay-bg: rgba(0,0,0,0.4);
+            --header-bg: #1a1a1a;
+            --header-color: #ffcc00;
+            --film-bg: #1a1a1a;
+            --film-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            --desc-color: #ddd;
+            --title-color: #ffcc00;
+        }
+
+        :root[data-theme="light"] {
+            --bg-color: #f5f5f5;
+            --container-bg: #ffffff;
+            --input-bg: #f0f0f0;
+            --text-color: #333;
+            --button-bg: #4a6fa5;
+            --button-hover: #5a8ac8;
+            --placeholder-color: #777;
+            --link-color: #666;
+            --kode-bg: #e0e0e0;
+            --error-bg: rgba(200, 200, 200, 0.9);
+            --success-bg: rgba(240, 240, 240, 0.9);
+            --overlay-bg: rgba(200,200,200,0.6);
+            --header-bg: #4a6fa5;
+            --header-color: #fff;
+            --film-bg: #ffffff;
+            --film-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            --desc-color: #666;
+            --title-color: #4a6fa5;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            background: var(--bg-color);
+            color: var(--text-color);
+            transition: all 0.3s ease;
+        }
+
+        /* Loading Screen */
+        #loading {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(6px);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            animation: fadeOut 1s ease forwards;
+            animation-delay: 3s;
+        }
+        .fade-text {
+            font-size: 2em;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            opacity: 0;
+            animation: fadeIn 2s ease forwards;
+        }
+        @keyframes fadeIn {
+            0% { opacity: 0; transform: scale(0.8); }
+            50% { opacity: 1; transform: scale(1.05); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+        @keyframes fadeOut {
+            to { opacity: 0; visibility: hidden; }
+        }
+
+        /* Spinner */
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid white;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Theme Toggle */
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--container-bg);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            z-index: 100;
+            overflow: hidden;
+        }
+        .theme-icon {
+            font-size: 20px;
+            transition: all 0.3s ease;
+            position: absolute;
+        }
+        .theme-icon.moon {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .theme-icon.sun {
+            opacity: 0;
+            transform: translateY(40px);
+        }
+        [data-theme="light"] .theme-icon.moon {
+            opacity: 0;
+            transform: translateY(-40px);
+        }
+        [data-theme="light"] .theme-icon.sun {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Login/Register Container */
+        #login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            background: var(--container-bg);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            width: 100%;
+            max-width: 400px;
+            color: var(--text-color);
+            transition: all 0.3s ease;
+        }
+        h2 {
+            text-align: center;
+            margin-bottom: 25px;
+            font-size: 24px;
+            position: relative;
+        }
+        h2::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 50px;
+            height: 3px;
+            background: var(--button-bg);
+            border-radius: 3px;
+        }
+
+        /* Input Groups */
+        .input-group {
+            position: relative;
+            margin: 15px 0;
+        }
+        .input-group i {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--placeholder-color);
+            transition: all 0.3s ease;
+        }
+        input {
+            width: 100%;
+            padding: 12px 12px 12px 40px;
+            border: 1px solid rgba(0,0,0,0.1);
+            border-radius: 8px;
+            outline: none;
+            background: var(--input-bg);
+            color: var(--text-color);
+            box-sizing: border-box;
+            transition: all 0.3s ease;
+            font-size: 16px;
+        }
+        input:focus {
+            border-color: var(--button-bg);
+            box-shadow: 0 0 0 3px rgba(74, 111, 165, 0.2);
+        }
+        input::placeholder {
+            color: var(--placeholder-color);
+        }
+
+        /* Buttons */
+        button {
+            width: 100%;
+            padding: 12px;
+            margin: 20px 0 10px;
+            border: none;
+            border-radius: 8px;
+            background: var(--button-bg);
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        button:hover {
+            background: var(--button-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        button:active {
+            transform: translateY(0);
+        }
+
+        /* Links */
+        .link {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 14px;
+            color: var(--link-color);
+        }
+        .link a {
+            color: var(--button-bg);
+            text-decoration: none;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+        .link a:hover {
+            color: var(--button-hover);
+            text-decoration: underline;
+        }
+
+        /* Kode Input */
+        .kode-box {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin: 15px 0;
+        }
+        .kode-display {
+            background: var(--kode-bg);
+            padding: 12px 15px;
+            border-radius: 8px;
+            font-weight: bold;
+            letter-spacing: 2px;
+            font-size: 16px;
+            min-width: 80px;
+            text-align: center;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.2);
+        }
+        .kode-input {
+            width: 100px;
+            padding-left: 10px !important;
+            text-align: center;
+        }
+
+        /* Popups */
+        #error-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.8);
+            background: var(--error-bg);
+            backdrop-filter: blur(3px);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            width: 280px;
+            max-width: 90%;
+            display: none;
+            z-index: 1000;
+            color: var(--text-color);
+            font-weight: bold;
+            animation: errorIn 0.3s ease forwards;
+        }
+        @keyframes errorIn {
+            0% { transform: translate(-50%, -50%) scale(0.8); opacity: 0; }
+            100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+        }
+        @keyframes errorOut {
+            0% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+            100% { transform: translate(-50%, -50%) scale(0.8); opacity: 0; }
+        }
+
+        #success-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--success-bg);
+            backdrop-filter: blur(5px);
+            padding: 25px 20px;
+            border-radius: 12px;
+            text-align: center;
+            width: 300px;
+            max-width: 90%;
+            font-size: 18px;
+            font-weight: bold;
+            color: var(--text-color);
+            display: none;
+            animation: popupIn 0.5s ease forwards;
+            z-index: 1000;
+        }
+        #success-popup i {
+            color: #4CAF50;
+            font-size: 40px;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        /* Overlay */
+        #overlay {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            background: var(--overlay-bg);
+            backdrop-filter: blur(5px);
+            top: 0;
+            left: 0;
+            display: none;
+            z-index: 999;
+        }
+
+        @keyframes popupIn {
+            0% { transform: translate(-50%, -50%) scale(0.8); opacity: 0; }
+            100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+        }
+        @keyframes popupOut {
+            0% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+            100% { transform: translate(-50%, -50%) scale(0.8); opacity: 0; }
+        }
+
+        /* Home Page Styles */
+        .home-page {
+            display: none;
+            padding: 20px;
+        }
+        header {
+            background: var(--header-bg);
+            padding: 15px;
+            text-align: center;
+            font-size: 28px;
+            font-weight: bold;
+            color: var(--header-color);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+            position: relative;
+        }
+        <style>
+.film {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 30px;
+}
+
+.film iframe {
+    width: 100%;
+    max-width: 1280px; /* Lebar maksimum */
+    height: 568px; /* Proporsi 16:9 */
+    border: 5px solid white;
+    border-radius: 10px;
+    transition: box-shadow 0.5s ease, border-color 0.5s ease;
+}
+
+/* Glow effect saat video di layar */
+.film iframe.glow {
+    box-shadow: 0 0 20px 5px rgba(255,255,255,0.8);
+    border-color: #fff;
+}
+
+.desc {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 15px;
+    font-size: 16px;
+    line-height: 1.5;
+    color: #808080;
+}
+.desc strong {
+    color: #ffcc00;
+    font-size: 18px;
+    display: block;
+    margin-bottom: 8px;
+}
+.typewriter {
+  font-weight: bold;
+  font-size: 18px;
+  color: #FF0000;
+  text-align: center;
+  margin-top: 10px;
+  white-space: pre-line;
+}
+.cursor {
+  display: inline-block;
+  width: 3px;
+  background-color: #FF0000;
+  animation: blink 0.7s step-end infinite;
+  margin-left: 2px;
+}
+
+@keyframes blink {
+  50% { background-color: transparent; }
+}
+<style>
+iframe {
+    border: 5px solid white;
+    border-radius: 10px;
+    transition: box-shadow 0.5s ease, border-color 0.5s ease;
+}
+
+/* Efek glow saat video masuk layar */
+iframe.glow {
+    box-shadow: 0 0 20px 5px rgba(255,255,255,0.8);
+    border-color: #fff;
+}
+
+.video-controls {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    padding: 10px;
+}
+
+.video-controls button {
+    background: #555;
+    color: white;
+    padding: 8px 15px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.video-controls button:hover {
+    background: #777;
+}
+
+.desc {
+    padding: 15px;
+    font-size: 16px;
+    line-height: 1.5;
+    color: #ddd;
+}
+
+.desc strong {
+    color: #ffcc00;
+    font-size: 18px;
+    display: block;
+    margin-bottom: 8px;
+}
+    </style>
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div id="loading">
+        <div class="fade-text">🔥FILM SANTAY LYNZX🔥</div>
+        <div class="spinner"></div>
+    </div>
+
+    <!-- Theme Toggle -->
+    <div class="theme-toggle" id="themeToggle">
+        <i class="fas fa-moon theme-icon moon"></i>
+        <i class="fas fa-sun theme-icon sun"></i>
+    </div>
+
+    <!-- Login/Register Section -->
+    <div id="login-container">
+        <div class="container" id="form-container">
+            <h2 id="form-title">Login</h2>
+            
+            <div class="input-group">
+                <i class="fas fa-user"></i>
+                <input type="text" id="username" placeholder="Username">
+            </div>
+            
+            <div class="input-group">
+                <i class="fas fa-lock"></i>
+                <input type="password" id="password" placeholder="Password">
+            </div>
+
+            <div id="kode-container" style="display:none;">
+                <div class="kode-box">
+                    <div id="kode-display" class="kode-display"></div>
+                    <input type="text" id="kode" placeholder="Masukkan Kode" class="kode-input">
+                </div>
+            </div>
+
+            <button id="submit-btn">
+                <i class="fas fa-sign-in-alt"></i>
+                <span>Login</span>
+            </button>
+            
+            <div class="link" id="toggle-link">
+                Belum punya akun? <a id="toggle-link-btn">Daftar</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Home Page (Hidden by default) -->
+    <div class="home-page" id="home-page">
+        <header>
+  🇮🇩 BIOSKOP LYNZX 🇮🇩
+</header>
+        <div id="typewriter" class="typewriter"></div>
+        <div class="film-container">
+        <div style="height:80px;"></div>
+    <div class="film">
+  <!-- Video Lokal (offline) -->
+  <video id="offline-video2" controls width="100%" height="500" style="display:none;" preload="auto">
+    <source src="video1.mp4" type="video/mp4">
+  </video>
+
+  <!-- YouTube Embed (online) -->
+  <iframe id="online-video2" 
+      src="https://www.youtube.com/embed/80PchCwaPp0"
+      width="100%" height="500" frameborder="0"
+      allowfullscreen>
+  </iframe>
+</div>
+
+<!-- Deskripsi -->
+<div class="desc">
+  <strong>anime wabah virus yang tersebar</strong>
+  menceritakan tentang adanya wabah dan para vampir dan anak anak yg selamat akan di ambil setiap hari darahnya.
+</div>    
+
+    <div class="film">
+  <!-- Video Lokal (offline) -->
+  <video id="offline-video2" controls width="100%" height="500" style="display:none;" preload="auto">
+    <source src="video1.mp4" type="video/mp4">
+  </video>
+
+  <!-- YouTube Embed (online) -->
+  <iframe id="online-video2" 
+      src="https://www.youtube.com/embed/wy5gjVF64QM?si=EfCdQdx410uUd4_G"
+      width="100%" height="500" frameborder="0"
+      allowfullscreen>
+  </iframe>
+</div>
+
+<!-- Deskripsi -->
+<div class="desc">
+  <strong>penduduk desa di landa wabah kematian</strong>
+  di penduduk desa yg tiba tiba ada wabah kematian yang sangat mematikan dan mengerikan.
+</div>    
+
+    <div class="film">
+  <!-- Video Lokal (offline) -->
+  <video id="offline-video2" controls width="100%" height="500" style="display:none;" preload="auto">
+    <source src="video1.mp4" type="video/mp4">
+  </video>
+
+  <!-- YouTube Embed (online) -->
+  <iframe id="online-video2" 
+      src="https://www.youtube.com/embed/Zn53QauRbT8?si=aWD5GpupGRdy-Csa"
+      width="100%" height="500" frameborder="0"
+      allowfullscreen>
+  </iframe>
+</div>
+
+<!-- Deskripsi -->
+<div class="desc">
+  <strong>tidur selama 1000 tahun</strong>
+  di ceritakan seorang lelaki yang tidur selama 1000 tahun untuk melindungi umat manusia.
+</div>    
+    
+<!-- Contoh 1 Video -->
+<div class="film">
+  <!-- Video Lokal (offline) -->
+  <video id="offline-video1" controls width="100%" height="500" style="display:none;" preload="auto">
+    <source src="video1.mp4" type="video/mp4">
+  </video>
+
+  <!-- YouTube Embed (online) -->
+  <iframe id="online-video1" 
+      src="https://www.youtube.com/embed/BcLZLnz8r7U?si=iBf1oAtXv7gPJ7c9"
+      width="100%" height="500" frameborder="0"
+      allowfullscreen>
+  </iframe>
+</div>
+
+<!-- Deskripsi -->
+<div class="desc">
+  <strong>pura pura terlihat lemah aslinya overpower</strong>
+  dikira lemah ternyata overpower 🔥
+</div>
+
+<div class="film">
+  <!-- Video Lokal (offline) -->
+  <video id="offline-video1" controls width="100%" height="500" style="display:none;" preload="auto">
+    <source src="video1.mp4" type="video/mp4">
+  </video>
+
+  <!-- YouTube Embed (online) -->
+  <iframe id="online-video1" 
+      src="https://www.youtube.com/embed/DG3rvJ9hAro?si=ETtbIACTL7-Jm5gs"
+      width="100%" height="500" frameborder="0"
+      allowfullscreen>
+  </iframe>
+</div>
+
+<!-- Deskripsi -->
+<div class="desc">
+  <strong>wabah virus zombie</strong>
+  wabah virus zombie yang saling membunuh demi bertahan hidup ☠️
+</div>
+
+<script>
+  // Ganti otomatis kalau offline
+  if (!navigator.onLine) {
+      document.getElementById("online-video1").style.display = "none";
+      document.getElementById("offline-video1").style.display = "block";
+  }
+
+  // Daftarkan Service Worker
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js')
+      .then(() => console.log("Service Worker aktif ✅"))
+      .catch(err => console.log("SW gagal:", err));
+  }
+</script>
+
+<script>
+
+// Efek glow saat scroll
+window.addEventListener('scroll', function() {
+    document.querySelectorAll('iframe').forEach(iframe => {
+        let rect = iframe.getBoundingClientRect();
+        if (rect.top < window.innerHeight && rect.bottom > 0) {
+            iframe.classList.add('glow');
+        } else {
+            iframe.classList.remove('glow');
+        }
+    });
+});
+</script>
+
+    <!-- Popups -->
+    <div id="overlay"></div>
+    <div id="error-popup"></div>
+    <div id="success-popup">
+        <i class="fas fa-check-circle"></i>
+        PENDAFTARAN ANDA BERHASIL
+    </div>
+
+    <script>
+        // 1. Inisialisasi Variabel
+        let isRegister = false;
+        let randomCode = "";
+        
+        // 2. Set Default Admin jika belum ada
+        if (!localStorage.getItem("users")) {
+            localStorage.setItem("users", JSON.stringify([{username:"admin", password:"9110"}]));
+        }
+
+        // 3. Fungsi Utama
+        function generateCode() {
+            randomCode = Math.floor(10000 + Math.random() * 90000).toString();
+            document.getElementById("kode-display").innerText = randomCode;
+        }
+
+        function showRegister() {
+            isRegister = true;
+            document.getElementById("form-title").innerText = "Daftar";
+            document.getElementById("submit-btn").innerHTML = '<i class="fas fa-user-plus"></i><span>Daftar</span>';
+            document.getElementById("kode-container").style.display = "block";
+            document.getElementById("toggle-link").innerHTML = `Sudah punya akun? <a id="toggle-link-btn">Login</a>`;
+            generateCode();
+            setupEventListeners();
+        }
+
+        function showLogin() {
+            isRegister = false;
+            document.getElementById("form-title").innerText = "Login";
+            document.getElementById("submit-btn").innerHTML = '<i class="fas fa-sign-in-alt"></i><span>Login</span>';
+            document.getElementById("kode-container").style.display = "none";
+            document.getElementById("toggle-link").innerHTML = `Belum punya akun? <a id="toggle-link-btn">Daftar</a>`;
+            setupEventListeners();
+        }
+
+        function submitForm() {
+            const username = document.getElementById("username").value.trim();
+            const password = document.getElementById("password").value.trim();
+            const kode = document.getElementById("kode") ? document.getElementById("kode").value.trim() : "";
+
+            const users = JSON.parse(localStorage.getItem("users")) || [];
+
+            if (isRegister) {
+                // Validasi pendaftaran
+                if (!username || !password || !kode) {
+                    showError("Harap isi semua field!");
+                    return;
+                }
+                if (kode !== randomCode) {
+                    showError("Kode yang anda masukkan salah");
+                    return;
+                }
+                if (users.find(u => u.username === username)) {
+                    showError("Username sudah terdaftar!");
+                    return;
+                }
+                users.push({username, password});
+                localStorage.setItem("users", JSON.stringify(users));
+                showSuccess();
+            } else {
+                // Validasi login
+                const user = users.find(u => u.username === username && u.password === password);
+                if (user) {
+                    // Tampilkan halaman home setelah login sukses
+                    document.getElementById("login-container").style.display = "none";
+                    document.getElementById("home-page").style.display = "block";
+                } else {
+                    showError("Username atau password salah<br><small>@LynzxOfc🇮🇩<br>🔥Lynzx Kill Mark🔥</small>");
+                }
+            }
+        }
+
+        function showError(message) {
+            const popup = document.getElementById("error-popup");
+            popup.innerHTML = message;
+            popup.style.display = "block";
+            popup.style.animation = "errorIn 0.3s ease forwards";
+            setTimeout(() => {
+                popup.style.animation = "errorOut 0.3s ease forwards";
+                setTimeout(() => {
+                    popup.style.display = "none";
+                }, 300);
+            }, 3000);
+        }
+
+        function showSuccess() {
+            document.getElementById("overlay").style.display = "block";
+            const popup = document.getElementById("success-popup");
+            popup.style.display = "block";
+            popup.style.animation = "popupIn 0.5s ease forwards";
+            setTimeout(() => {
+                popup.style.animation = "popupOut 0.5s ease forwards";
+                setTimeout(() => {
+                    document.getElementById("overlay").style.display = "none";
+                    popup.style.display = "none";
+                    showLogin();
+                }, 500);
+            }, 3000);
+        }
+
+        // 4. Setup Event Listeners
+        function setupEventListeners() {
+            // Tombol submit
+            const submitBtn = document.getElementById("submit-btn");
+            if (submitBtn) {
+                submitBtn.addEventListener("click", submitForm);
+            }
+            
+            // Tombol toggle login/register
+            const toggleLinkBtn = document.getElementById("toggle-link-btn");
+            if (toggleLinkBtn) {
+                toggleLinkBtn.addEventListener("click", function() {
+                    if (isRegister) {
+                        showLogin();
+                    } else {
+                        showRegister();
+                    }
+                });
+            }
+            
+            // Input focus effects
+            document.querySelectorAll('input').forEach(input => {
+                input.addEventListener('focus', function() {
+                    this.parentElement.querySelector('i').style.color = 'var(--button-bg)';
+                });
+                input.addEventListener('blur', function() {
+                    this.parentElement.querySelector('i').style.color = 'var(--placeholder-color)';
+                });
+            });
+        }
+
+        // 5. Inisialisasi Theme Toggle
+        function initTheme() {
+            const themeToggle = document.getElementById('themeToggle');
+            const html = document.documentElement;
+            
+            const savedTheme = localStorage.getItem('theme') || 
+                             (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+            html.setAttribute('data-theme', savedTheme);
+            
+            if (themeToggle) {
+                themeToggle.addEventListener('click', () => {
+                    const currentTheme = html.getAttribute('data-theme');
+                    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                    html.setAttribute('data-theme', newTheme);
+                    localStorage.setItem('theme', newTheme);
+                });
+            }
+        }
+
+        // 6. Jalankan semua setelah dokumen siap
+        document.addEventListener('DOMContentLoaded', function() {
+            // Sembunyikan loading screen setelah 3 detik
+            setTimeout(() => {
+                const loading = document.getElementById("loading");
+                if (loading) {
+                    loading.style.display = "none";
+                }
+            }, 3000);
+            
+            initTheme();
+            setupEventListeners();
+        });
+const lines = [
+  "Welcome To Web Film Lynzx",
+  "Cocok Buat Nonton Santay",
+  "Dan Pastinya Tanpa Iklan 🔥"
+];
+
+let lineIndex = 0;
+let charIndex = 0;
+const speed = 100; // kecepatan ketik (ms per huruf)
+const container = document.getElementById("typewriter");
+
+function typeLine() {
+  if (lineIndex < lines.length) {
+    if (charIndex < lines[lineIndex].length) {
+      container.innerHTML =
+        (container.innerHTML.replace('<span class="cursor"></span>', "") || "") +
+        lines[lineIndex].charAt(charIndex) +
+        '<span class="cursor"></span>';
+      charIndex++;
+      setTimeout(typeLine, speed);
+    } else {
+      container.innerHTML = container.innerHTML.replace('<span class="cursor"></span>', "") + "<br>";
+      charIndex = 0;
+      lineIndex++;
+      setTimeout(typeLine, 500); // jeda antar baris
+    }
+  } else {
+    container.innerHTML = container.innerHTML.replace('<span class="cursor"></span>', "");
+  }
+}
+
+// Jalankan setelah loading hilang + jeda 2 detik
+document.addEventListener("DOMContentLoaded", () => {
+  setTimeout(() => {
+    const loading = document.getElementById("loading");
+    if (loading) loading.style.display = "none";
+
+    // mulai animasi ketikan setelah 2 detik loading hilang
+    setTimeout(() => {
+      typeLine();
+    }, 2000);
+
+  }, 3000); // loading hilang setelah 3 detik
+});
+</script>
+</body>
+</html>
